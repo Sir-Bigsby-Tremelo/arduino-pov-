@@ -1,0 +1,91 @@
+#define NUM_LEDS 5
+#define ALPHABET_SIZE 1
+
+typedef struct {
+  String pattern[NUM_LEDS];
+} Letter;
+
+const int pinMap[NUM_LEDS] {3,4,5,6,7};      
+const int reedPin = 8;
+
+int reedState = 0;
+int gap = 1;
+
+const Letter A = {{
+      " ### ",
+      "#   #",
+      "#####",
+      "#   #",
+      "#   #"
+  }};
+
+const char alphabetKeys[] = {'A'};
+
+const Letter alphabetPatterns[] = {
+  A
+};
+
+String message;
+
+int search (char letter) {
+  int wantedpos = -1;
+  for (int i=0; i<ALPHABET_SIZE; i++) {
+    if (letter = alphabetKeys[i]) {
+      wantedpos = i;
+      break;
+   }
+  }
+  return wantedpos;  
+}
+
+void printLetter(char letter) {
+  int index = search(letter);
+
+  if (index > -1) {
+    Serial.println(index);
+    Letter letter = alphabetPatterns[index];
+    //Serial.println(letter.pattern[0].charAt(0));
+    for (int x = 0; x<5; x++) {
+      for (int y = 0; y<5; y++) {
+        //Serial.print(x,y);
+        //Serial.println();
+        char code = letter.pattern[y].charAt(x);
+        int pinValue;
+        Serial.println(y);
+        Serial.println(x);
+        Serial.println(code);
+        if (code == '#') {
+          digitalWrite(pinMap[y], HIGH);
+        } else {
+          digitalWrite(pinMap[y], LOW);
+        }
+        
+      }
+      delay(gap);
+    }
+  }
+}
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  message = "A";
+  //Serial.println(message);
+  //Serial.println(A.pattern[0]);
+  for (int i = 0; i < NUM_LEDS; i++) {
+    pinMode(pinMap[i], OUTPUT);
+  }
+  pinMode(reedPin, INPUT);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  reedState = digitalRead(reedPin);
+  if (reedState == HIGH) {
+    delay(50);
+    int messageLength = message.length();
+    for (int i = 0; i<messageLength; i++) {
+      printLetter(message.charAt(i));
+    }
+  }
+}
